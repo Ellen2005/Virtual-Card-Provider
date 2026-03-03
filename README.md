@@ -41,6 +41,13 @@ A full-stack **Virtual Card & Wallet Management Platform** that allows users to 
 - **Joi** for validation
 - **Nodemailer** for email notifications
 
+### Environment variables added or updated
+
+- `PAYMENT_FAILURE_RATE` – a number between 0 and 1 used in development to randomly fail card payments (default `0.3`). Set to `0` in production or adjust as needed.
+- `SMTP_SERVICE` – optional; use this to specify a nodemailer service name (e.g. `gmail`). Adding it can help avoid "Connection closed unexpectedly" errors with `smtp.gmail.com`.
+
+📌 **SMTP setup tips**: if you're using Gmail, you must either create an application-specific password or enable less secure app access. The error `Connection closed unexpectedly` usually means the credentials were rejected or the provider blocked the connection. Consult the logs printed at startup from `src/utils/helpers.js` for a full config dump and diagnostic message.
+
 ### Frontend
 
 - **React 19**
@@ -183,7 +190,8 @@ Wallet balance is stored on the `users` table as `wallet_balance`.
 1. User funds wallet
 2. Wallet balance updated
 3. User makes payment using a virtual card
-4. Payment is **simulated (70% success / 30% failure)**
+4. Payment is **simulated by default** (70% success / 30% failure).  
+   *You can control or disable the failure rate with the `PAYMENT_FAILURE_RATE` environment variable—set to `0` for always‑succeed or a value between `0` and `1` to adjust the probability.*
 5. Transaction recorded
 6. Balance updated
 7. Notification sent

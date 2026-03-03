@@ -65,8 +65,12 @@ exports.simulatePayment = async (req, res) => {
       });
     }
 
-    // 3️⃣ Simulate random failure (30%)
-    const failed = Math.random() < 0.3;
+    // 3️⃣ Simulate random failure (default 30% for development, 0 in production or when configured)
+    const failureRate = parseFloat(process.env.PAYMENT_FAILURE_RATE ?? (process.env.NODE_ENV === 'production' ? '0' : '0.3'));
+    if (isNaN(failureRate) || failureRate < 0 || failureRate > 1) {
+      console.warn('⚠️ Invalid PAYMENT_FAILURE_RATE, defaulting to 0.3');
+    }
+    const failed = Math.random() < (failureRate || 0);
     const reference = crypto.randomUUID();
 
     if (failed) {
@@ -103,9 +107,11 @@ exports.simulatePayment = async (req, res) => {
 
       await conn.commit();
 
-      return res.status(400).json({  // CHANGED: Return 400 status for failure
+      // Return 200 with success: false for simulated failure (not a server error)
+      return res.status(200).json({
         success: false,
-        message: 'Payment failed - Please try again'
+        message: 'Payment failed - Please try again',
+        simulated: true
       });
     }
 

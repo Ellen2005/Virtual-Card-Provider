@@ -4,12 +4,10 @@ const db = require('../config/database');
 const { generateToken } = require('../utils/helpers');
 const crypto = require('crypto');
 
-// Check for required environment variables
+
 if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET) {
   console.error('Missing Google OAuth credentials in environment variables');
   console.error('Please add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to your .env file');
-  // IMPORTANT: don't crash the whole backend if Google OAuth isn't configured yet.
-  // We'll skip registering the Google strategy; non-OAuth auth flows should still work.
 }
 
 // Configure Google OAuth Strategy (only if configured)

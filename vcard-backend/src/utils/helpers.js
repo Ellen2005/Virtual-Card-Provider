@@ -27,6 +27,8 @@ const generateRandomToken = () => {
 
 // Create transporter FIRST (before sendEmail function)
 const transporter = nodemailer.createTransport({
+  // service field helps nodemailer pick the right defaults for popular providers
+  service: process.env.SMTP_SERVICE || 'gmail',
   host: process.env.SMTP_HOST || 'smtp.gmail.com',
   port: parseInt(process.env.SMTP_PORT || '587'),
   secure: process.env.SMTP_SECURE === 'true',
@@ -59,6 +61,13 @@ transporter.verify((error, success) => {
       hasUser: !!process.env.SMTP_USER,
       hasPass: !!process.env.SMTP_PASS
     });
+    // common causes for connection closed unexpectedly on Gmail:
+    //  • credentials wrong or app password required
+    //  • "less secure apps" not enabled
+    //  • 2FA not handled
+    //  • network/firewall blocking port 587
+    console.error('💡 Tip: if you are using Gmail, create an App Password or enable less secure apps.' +
+      ' Check that SMTP_USER/SMTP_PASS are correct and that your account allows SMTP access.');
   } else {
     console.log('✅ SMTP Server is ready to send emails');
   }
